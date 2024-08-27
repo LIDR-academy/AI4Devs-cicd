@@ -13,9 +13,6 @@ RUN npm install
 # Copiar el resto del código de la aplicación
 COPY . .
 
-# Construir la aplicación
-RUN npm run build
-
 # Exponer el puerto 3000
 EXPOSE 3000
 
