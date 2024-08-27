@@ -1,0 +1,10 @@
+{
+  "dependencies": {
+    "dotenv": "^16.4.5"
+  },
+  "prisma": {
+    "schema": "backend/prisma/schema.prisma"
+  },
+  "devDependencies": {
+  }
+}
