@@ -5,6 +5,9 @@
 **/node_modules
 **/prompts_master.md
 
+**/.terraform/
+**/.terraform.lock.hcl  
+
 # other dependencies
 **/.pnp
 **.pnp.js

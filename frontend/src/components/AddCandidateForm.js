@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Form, Button, Alert, FormControl, Card, Container, Row, Col } from 'react-bootstrap';
+import { Form, Button, Alert, InputGroup, FormControl, Card, Container, Row, Col } from 'react-bootstrap';
 import { Trash } from 'react-bootstrap-icons';
 import FileUploader from './FileUploader';
 import DatePicker from 'react-datepicker';

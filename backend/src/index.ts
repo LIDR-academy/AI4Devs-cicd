@@ -33,7 +33,7 @@ app.use((req, res, next) => {
 
 // Middleware para permitir CORS desde http://localhost:3000
 app.use(cors({
-  origin: 'http://localhost:3000',
+  origin: 'http://localhost:4000',
   credentials: true
 }));
 
@@ -51,7 +51,7 @@ app.use((req, res, next) => {
   next();
 });
 
-const port = 3010;
+const port = 8080;
 
 app.get('/', (req, res) => {
   res.send('Hola LTI!');
@@ -62,7 +62,7 @@ app.use((err: any, req: Request, res: Response, next: NextFunction) => {
   res.type('text/plain');
   res.status(500).send('Something broke!');
 });
-
-app.listen(port, () => {
-  console.log(`Server is running at http://localhost:${port}`);
+app.listen(port, '0.0.0.0', () => {
+  console.log(`Server is running at http://yourip:${port}`);
 });
+

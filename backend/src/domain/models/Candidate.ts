@@ -98,6 +98,7 @@ export class Candidate {
                 });
             } catch (error: any) {
                 console.log(error);
+                // @ts-ignore
                 if (error instanceof Prisma.PrismaClientInitializationError) {
                     // Database connection error
                     throw new Error('No se pudo conectar con la base de datos. Por favor, asegúrese de que el servidor de base de datos esté en ejecución.');
@@ -116,6 +117,7 @@ export class Candidate {
                 });
                 return result;
             } catch (error: any) {
+                // @ts-ignore
                 if (error instanceof Prisma.PrismaClientInitializationError) {
                     // Database connection error
                     throw new Error('No se pudo conectar con la base de datos. Por favor, asegúrese de que el servidor de base de datos esté en ejecución.');
