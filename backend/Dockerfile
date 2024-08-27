@@ -16,6 +16,8 @@ COPY . .
 # Construir la aplicación
 RUN npm run build
 
+RUN npm run prisma:generate
+
 # Exponer el puerto 8080
 EXPOSE 8080
 
