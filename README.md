@@ -160,3 +160,17 @@ POST http://localhost:3010/candidates
 }
 ```
 
+
+## Resolución de práctica
+
+- He seguido los pasos para configurar la integración de Datadog con AWS usando Terraform, pero no he podido completar la integración.
+
+- Al intentar configurar la integración de Datadog con AWS, me he encontrado con el error:
+
+```
+Datadog is unable to authenticate with AWS role: lti-project-test-12-DatadogAWSIntegrationRole
+
+Check your Account Details to ensure you are using the correct IAM role name and external ID.
+```
+
+- Para intentar solucionar este problema he mantenido una conversación paralela en ChatGPT https://chatgpt.com/share/b9542d11-fbda-4b86-bc2b-36bac0de4e66, ya que en Cursor no me proporcionaba ninguna solución útil, pero tampoco he conseguido llegar a ninguna solución después de intentar múltiples soluciones.
