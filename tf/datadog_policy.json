@@ -1,0 +1,20 @@
+{
+    "Version": "2012-10-17",
+    "Statement": [
+      {
+        "Effect": "Allow",
+        "Action": [
+          "cloudwatch:GetMetricStatistics",
+          "cloudwatch:ListMetrics",
+          "logs:DescribeLogGroups",
+          "logs:DescribeLogStreams",
+          "logs:GetLogEvents",
+          "logs:FilterLogEvents",
+          "tag:GetResources",
+          "tag:GetTagKeys",
+          "tag:GetTagValues"
+        ],
+        "Resource": "*"
+      }
+    ]
+  }
