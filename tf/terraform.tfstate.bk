@@ -1,173 +1,10 @@
 {
   "version": 4,
-  "terraform_version": "1.9.5",
-  "serial": 16,
-  "lineage": "04b69aa4-a1f6-4f3d-1ad7-a455d8ba904d",
+  "terraform_version": "1.5.7",
+  "serial": 203,
+  "lineage": "1e86169c-593d-dc9b-085e-85f307be74e1",
   "outputs": {},
   "resources": [
-    {
-      "mode": "data",
-      "type": "aws_iam_policy_document",
-      "name": "datadog_aws_integration",
-      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
-      "instances": [
-        {
-          "schema_version": 0,
-          "attributes": {
-            "id": "1969693490",
-            "json": "{\n  \"Version\": \"2012-10-17\",\n  \"Statement\": [\n    {\n      \"Effect\": \"Allow\",\n      \"Action\": [\n        \"logs:GetLogEvents\",\n        \"logs:FilterLogEvents\",\n        \"logs:DescribeLogStreams\",\n        \"logs:DescribeLogGroups\",\n        \"cloudwatch:ListMetrics\",\n        \"cloudwatch:GetMetricStatistics\",\n        \"cloudwatch:GetMetricData\",\n        \"cloudwatch:DescribeAlarmsForMetric\",\n        \"cloudwatch:DescribeAlarms\"\n      ],\n      \"Resource\": \"*\"\n    },\n    {\n      \"Effect\": \"Allow\",\n      \"Action\": [\n        \"ec2:DescribeVolumes\",\n        \"ec2:DescribeTags\",\n        \"ec2:DescribeRegions\",\n        \"ec2:DescribeInstances\",\n        \"ec2:DescribeInstanceTypeOfferings\"\n      ],\n      \"Resource\": \"*\"\n    },\n    {\n      \"Effect\": \"Allow\",\n      \"Action\": [\n        \"s3:ListBucket\",\n        \"s3:GetObject\"\n      ],\n      \"Resource\": [\n        \"arn:aws:s3:::your-bucket-name/*\",\n        \"arn:aws:s3:::your-bucket-name\"\n      ]\n    },\n    {\n      \"Effect\": \"Allow\",\n      \"Action\": [\n        \"rds:DescribeDBInstances\",\n        \"rds:DescribeDBClusters\"\n      ],\n      \"Resource\": \"*\"\n    },\n    {\n      \"Effect\": \"Allow\",\n      \"Action\": [\n        \"elasticloadbalancing:DescribeTargetGroups\",\n        \"elasticloadbalancing:DescribeRules\",\n        \"elasticloadbalancing:DescribeLoadBalancers\",\n        \"elasticloadbalancing:DescribeListeners\"\n      ],\n      \"Resource\": \"*\"\n    }\n  ]\n}",
-            "minified_json": "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Effect\":\"Allow\",\"Action\":[\"logs:GetLogEvents\",\"logs:FilterLogEvents\",\"logs:DescribeLogStreams\",\"logs:DescribeLogGroups\",\"cloudwatch:ListMetrics\",\"cloudwatch:GetMetricStatistics\",\"cloudwatch:GetMetricData\",\"cloudwatch:DescribeAlarmsForMetric\",\"cloudwatch:DescribeAlarms\"],\"Resource\":\"*\"},{\"Effect\":\"Allow\",\"Action\":[\"ec2:DescribeVolumes\",\"ec2:DescribeTags\",\"ec2:DescribeRegions\",\"ec2:DescribeInstances\",\"ec2:DescribeInstanceTypeOfferings\"],\"Resource\":\"*\"},{\"Effect\":\"Allow\",\"Action\":[\"s3:ListBucket\",\"s3:GetObject\"],\"Resource\":[\"arn:aws:s3:::your-bucket-name/*\",\"arn:aws:s3:::your-bucket-name\"]},{\"Effect\":\"Allow\",\"Action\":[\"rds:DescribeDBInstances\",\"rds:DescribeDBClusters\"],\"Resource\":\"*\"},{\"Effect\":\"Allow\",\"Action\":[\"elasticloadbalancing:DescribeTargetGroups\",\"elasticloadbalancing:DescribeRules\",\"elasticloadbalancing:DescribeLoadBalancers\",\"elasticloadbalancing:DescribeListeners\"],\"Resource\":\"*\"}]}",
-            "override_json": null,
-            "override_policy_documents": null,
-            "policy_id": null,
-            "source_json": null,
-            "source_policy_documents": null,
-            "statement": [
-              {
-                "actions": [
-                  "cloudwatch:DescribeAlarms",
-                  "cloudwatch:DescribeAlarmsForMetric",
-                  "cloudwatch:GetMetricData",
-                  "cloudwatch:GetMetricStatistics",
-                  "cloudwatch:ListMetrics",
-                  "logs:DescribeLogGroups",
-                  "logs:DescribeLogStreams",
-                  "logs:FilterLogEvents",
-                  "logs:GetLogEvents"
-                ],
-                "condition": [],
-                "effect": "Allow",
-                "not_actions": [],
-                "not_principals": [],
-                "not_resources": [],
-                "principals": [],
-                "resources": [
-                  "*"
-                ],
-                "sid": ""
-              },
-              {
-                "actions": [
-                  "ec2:DescribeInstanceTypeOfferings",
-                  "ec2:DescribeInstances",
-                  "ec2:DescribeRegions",
-                  "ec2:DescribeTags",
-                  "ec2:DescribeVolumes"
-                ],
-                "condition": [],
-                "effect": "Allow",
-                "not_actions": [],
-                "not_principals": [],
-                "not_resources": [],
-                "principals": [],
-                "resources": [
-                  "*"
-                ],
-                "sid": ""
-              },
-              {
-                "actions": [
-                  "s3:GetObject",
-                  "s3:ListBucket"
-                ],
-                "condition": [],
-                "effect": "Allow",
-                "not_actions": [],
-                "not_principals": [],
-                "not_resources": [],
-                "principals": [],
-                "resources": [
-                  "arn:aws:s3:::your-bucket-name",
-                  "arn:aws:s3:::your-bucket-name/*"
-                ],
-                "sid": ""
-              },
-              {
-                "actions": [
-                  "rds:DescribeDBClusters",
-                  "rds:DescribeDBInstances"
-                ],
-                "condition": [],
-                "effect": "Allow",
-                "not_actions": [],
-                "not_principals": [],
-                "not_resources": [],
-                "principals": [],
-                "resources": [
-                  "*"
-                ],
-                "sid": ""
-              },
-              {
-                "actions": [
-                  "elasticloadbalancing:DescribeListeners",
-                  "elasticloadbalancing:DescribeLoadBalancers",
-                  "elasticloadbalancing:DescribeRules",
-                  "elasticloadbalancing:DescribeTargetGroups"
-                ],
-                "condition": [],
-                "effect": "Allow",
-                "not_actions": [],
-                "not_principals": [],
-                "not_resources": [],
-                "principals": [],
-                "resources": [
-                  "*"
-                ],
-                "sid": ""
-              }
-            ],
-            "version": "2012-10-17"
-          },
-          "sensitive_attributes": []
-        }
-      ]
-    },
-    {
-      "mode": "data",
-      "type": "aws_iam_policy_document",
-      "name": "datadog_aws_integration_assume_role_no_external_id",
-      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
-      "instances": [
-        {
-          "schema_version": 0,
-          "attributes": {
-            "id": "312923939",
-            "json": "{\n  \"Version\": \"2012-10-17\",\n  \"Statement\": [\n    {\n      \"Effect\": \"Allow\",\n      \"Action\": \"sts:AssumeRole\",\n      \"Principal\": {\n        \"AWS\": \"arn:aws:iam::888577025833:role/lti-project-test-13-DatadogAWSIntegrationRole\"\n      }\n    }\n  ]\n}",
-            "minified_json": "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Effect\":\"Allow\",\"Action\":\"sts:AssumeRole\",\"Principal\":{\"AWS\":\"arn:aws:iam::888577025833:role/lti-project-test-13-DatadogAWSIntegrationRole\"}}]}",
-            "override_json": null,
-            "override_policy_documents": null,
-            "policy_id": null,
-            "source_json": null,
-            "source_policy_documents": null,
-            "statement": [
-              {
-                "actions": [
-                  "sts:AssumeRole"
-                ],
-                "condition": [],
-                "effect": "Allow",
-                "not_actions": [],
-                "not_principals": [],
-                "not_resources": [],
-                "principals": [
-                  {
-                    "identifiers": [
-                      "arn:aws:iam::888577025833:role/lti-project-test-13-DatadogAWSIntegrationRole"
-                    ],
-                    "type": "AWS"
-                  }
-                ],
-                "resources": [],
-                "sid": ""
-              }
-            ],
-            "version": "2012-10-17"
-          },
-          "sensitive_attributes": []
-        }
-      ]
-    },
     {
       "mode": "data",
       "type": "aws_iam_policy_document",
@@ -177,9 +14,9 @@
         {
           "schema_version": 0,
           "attributes": {
-            "id": "1264795072",
-            "json": "{\n  \"Version\": \"2012-10-17\",\n  \"Statement\": [\n    {\n      \"Effect\": \"Allow\",\n      \"Action\": \"s3:GetObject\",\n      \"Resource\": \"arn:aws:s3:::lti-project-test-13-code-bucket/*\"\n    }\n  ]\n}",
-            "minified_json": "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Effect\":\"Allow\",\"Action\":\"s3:GetObject\",\"Resource\":\"arn:aws:s3:::lti-project-test-13-code-bucket/*\"}]}",
+            "id": "1756601947",
+            "json": "{\n  \"Version\": \"2012-10-17\",\n  \"Statement\": [\n    {\n      \"Effect\": \"Allow\",\n      \"Action\": \"s3:GetObject\",\n      \"Resource\": \"arn:aws:s3:::lti-project-code-bucket/*\"\n    }\n  ]\n}",
+            "minified_json": "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Effect\":\"Allow\",\"Action\":\"s3:GetObject\",\"Resource\":\"arn:aws:s3:::lti-project-code-bucket/*\"}]}",
             "override_json": null,
             "override_policy_documents": null,
             "policy_id": null,
@@ -197,7 +34,7 @@
                 "not_resources": [],
                 "principals": [],
                 "resources": [
-                  "arn:aws:s3:::lti-project-test-13-code-bucket/*"
+                  "arn:aws:s3:::lti-project-code-bucket/*"
                 ],
                 "sid": ""
               }
@@ -217,50 +54,21 @@
         {
           "schema_version": 0,
           "attributes": {
-            "arn": "arn:aws:iam::888577025833:instance-profile/lti-project-test-13-ec2-instance-profile",
-            "create_date": "2024-08-31T11:48:43Z",
-            "id": "lti-project-test-13-ec2-instance-profile",
-            "name": "lti-project-test-13-ec2-instance-profile",
+            "arn": "arn:aws:iam::221082204872:instance-profile/lti-project-ec2-instance-profile",
+            "create_date": "2024-08-27T10:24:23Z",
+            "id": "lti-project-ec2-instance-profile",
+            "name": "lti-project-ec2-instance-profile",
             "name_prefix": "",
             "path": "/",
-            "role": "lti-project-test-13-ec2-role",
-            "tags": null,
+            "role": "lti-project-ec2-role",
+            "tags": {},
             "tags_all": {},
-            "unique_id": "AIPA45Y2RM4UY4SUVIZPA"
+            "unique_id": "AIPATG6MGXLELJ7UNNCPU"
           },
           "sensitive_attributes": [],
           "private": "bnVsbA==",
           "dependencies": [
             "aws_iam_role.ec2_role"
-          ]
-        }
-      ]
-    },
-    {
-      "mode": "managed",
-      "type": "aws_iam_policy",
-      "name": "datadog_aws_integration",
-      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
-      "instances": [
-        {
-          "schema_version": 0,
-          "attributes": {
-            "arn": "arn:aws:iam::888577025833:policy/lti-project-test-13-DatadogAWSIntegrationPolicy",
-            "attachment_count": 0,
-            "description": "",
-            "id": "arn:aws:iam::888577025833:policy/lti-project-test-13-DatadogAWSIntegrationPolicy",
-            "name": "lti-project-test-13-DatadogAWSIntegrationPolicy",
-            "name_prefix": "",
-            "path": "/",
-            "policy": "{\"Statement\":[{\"Action\":[\"logs:GetLogEvents\",\"logs:FilterLogEvents\",\"logs:DescribeLogStreams\",\"logs:DescribeLogGroups\",\"cloudwatch:ListMetrics\",\"cloudwatch:GetMetricStatistics\",\"cloudwatch:GetMetricData\",\"cloudwatch:DescribeAlarmsForMetric\",\"cloudwatch:DescribeAlarms\"],\"Effect\":\"Allow\",\"Resource\":\"*\"},{\"Action\":[\"ec2:DescribeVolumes\",\"ec2:DescribeTags\",\"ec2:DescribeRegions\",\"ec2:DescribeInstances\",\"ec2:DescribeInstanceTypeOfferings\"],\"Effect\":\"Allow\",\"Resource\":\"*\"},{\"Action\":[\"s3:ListBucket\",\"s3:GetObject\"],\"Effect\":\"Allow\",\"Resource\":[\"arn:aws:s3:::your-bucket-name/*\",\"arn:aws:s3:::your-bucket-name\"]},{\"Action\":[\"rds:DescribeDBInstances\",\"rds:DescribeDBClusters\"],\"Effect\":\"Allow\",\"Resource\":\"*\"},{\"Action\":[\"elasticloadbalancing:DescribeTargetGroups\",\"elasticloadbalancing:DescribeRules\",\"elasticloadbalancing:DescribeLoadBalancers\",\"elasticloadbalancing:DescribeListeners\"],\"Effect\":\"Allow\",\"Resource\":\"*\"}],\"Version\":\"2012-10-17\"}",
-            "policy_id": "ANPA45Y2RM4UY2RBFZLJ5",
-            "tags": null,
-            "tags_all": {}
-          },
-          "sensitive_attributes": [],
-          "private": "bnVsbA==",
-          "dependencies": [
-            "data.aws_iam_policy_document.datadog_aws_integration"
           ]
         }
       ]
@@ -274,16 +82,16 @@
         {
           "schema_version": 0,
           "attributes": {
-            "arn": "arn:aws:iam::888577025833:policy/lti-project-test-13-s3-access-policy",
-            "attachment_count": 0,
+            "arn": "arn:aws:iam::221082204872:policy/s3-access-policy",
+            "attachment_count": 1,
             "description": "",
-            "id": "arn:aws:iam::888577025833:policy/lti-project-test-13-s3-access-policy",
-            "name": "lti-project-test-13-s3-access-policy",
+            "id": "arn:aws:iam::221082204872:policy/s3-access-policy",
+            "name": "s3-access-policy",
             "name_prefix": "",
             "path": "/",
-            "policy": "{\"Statement\":[{\"Action\":\"s3:GetObject\",\"Effect\":\"Allow\",\"Resource\":\"arn:aws:s3:::lti-project-test-13-code-bucket/*\"}],\"Version\":\"2012-10-17\"}",
-            "policy_id": "ANPA45Y2RM4UYZA4IOFEH",
-            "tags": null,
+            "policy": "{\"Statement\":[{\"Action\":\"s3:GetObject\",\"Effect\":\"Allow\",\"Resource\":\"arn:aws:s3:::lti-project-code-bucket/*\"}],\"Version\":\"2012-10-17\"}",
+            "policy_id": "ANPATG6MGXLEJ6J3YEVJ5",
+            "tags": {},
             "tags_all": {}
           },
           "sensitive_attributes": [],
@@ -304,22 +112,24 @@
         {
           "schema_version": 0,
           "attributes": {
-            "arn": "arn:aws:iam::888577025833:role/lti-project-test-13-ec2-role",
+            "arn": "arn:aws:iam::221082204872:role/lti-project-ec2-role",
             "assume_role_policy": "{\"Statement\":[{\"Action\":\"sts:AssumeRole\",\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"ec2.amazonaws.com\"},\"Sid\":\"\"}],\"Version\":\"2012-10-17\"}",
-            "create_date": "2024-08-31T11:48:43Z",
+            "create_date": "2024-08-27T10:24:23Z",
             "description": "",
             "force_detach_policies": false,
-            "id": "lti-project-test-13-ec2-role",
+            "id": "lti-project-ec2-role",
             "inline_policy": [],
-            "managed_policy_arns": [],
+            "managed_policy_arns": [
+              "arn:aws:iam::221082204872:policy/s3-access-policy"
+            ],
             "max_session_duration": 3600,
-            "name": "lti-project-test-13-ec2-role",
+            "name": "lti-project-ec2-role",
             "name_prefix": "",
             "path": "/",
             "permissions_boundary": "",
-            "tags": null,
+            "tags": {},
             "tags_all": {},
-            "unique_id": "AROA45Y2RM4U4CEAIJDCW"
+            "unique_id": "AROATG6MGXLELHWVWU6VW"
           },
           "sensitive_attributes": [],
           "private": "bnVsbA=="
@@ -335,9 +145,9 @@
         {
           "schema_version": 0,
           "attributes": {
-            "id": "lti-project-test-13-ec2-role-20240831114846344600000001",
-            "policy_arn": "arn:aws:iam::888577025833:policy/lti-project-test-13-s3-access-policy",
-            "role": "lti-project-test-13-ec2-role"
+            "id": "lti-project-ec2-role-20240827102423455200000001",
+            "policy_arn": "arn:aws:iam::221082204872:policy/s3-access-policy",
+            "role": "lti-project-ec2-role"
           },
           "sensitive_attributes": [],
           "private": "bnVsbA==",
@@ -360,7 +170,7 @@
           "schema_version": 1,
           "attributes": {
             "ami": "ami-075d39ebbca89ed55",
-            "arn": "arn:aws:ec2:us-east-1:888577025833:instance/i-0e6492bb866fed2dc",
+            "arn": "arn:aws:ec2:us-east-1:221082204872:instance/i-0686a90cc88afa733",
             "associate_public_ip_address": true,
             "availability_zone": "us-east-1d",
             "capacity_reservation_specification": [
@@ -397,8 +207,8 @@
             "hibernation": false,
             "host_id": "",
             "host_resource_group_arn": null,
-            "iam_instance_profile": "lti-project-test-13-ec2-instance-profile",
-            "id": "i-0e6492bb866fed2dc",
+            "iam_instance_profile": "lti-project-ec2-instance-profile",
+            "id": "i-0686a90cc88afa733",
             "instance_initiated_shutdown_behavior": "stop",
             "instance_lifecycle": "",
             "instance_market_options": [],
@@ -428,8 +238,8 @@
             "password_data": "",
             "placement_group": "",
             "placement_partition_number": 0,
-            "primary_network_interface_id": "eni-05c353ea86784ded5",
-            "private_dns": "ip-172-31-86-145.ec2.internal",
+            "primary_network_interface_id": "eni-0a21c3b193e1e05d2",
+            "private_dns": "ip-172-31-80-157.ec2.internal",
             "private_dns_name_options": [
               {
                 "enable_resource_name_dns_a_record": false,
@@ -437,9 +247,9 @@
                 "hostname_type": "ip-name"
               }
             ],
-            "private_ip": "172.31.86.145",
-            "public_dns": "ec2-54-163-52-250.compute-1.amazonaws.com",
-            "public_ip": "54.163.52.250",
+            "private_ip": "172.31.80.157",
+            "public_dns": "ec2-54-165-163-128.compute-1.amazonaws.com",
+            "public_ip": "54.165.163.128",
             "root_block_device": [
               {
                 "delete_on_termination": true,
@@ -450,18 +260,18 @@
                 "tags": {},
                 "tags_all": {},
                 "throughput": 0,
-                "volume_id": "vol-0d42ca916eb48e633",
+                "volume_id": "vol-04a1d33993a178aa7",
                 "volume_size": 8,
                 "volume_type": "gp2"
               }
             ],
             "secondary_private_ips": [],
             "security_groups": [
-              "lti-project-test-13-sg-backend"
+              "lti-project-backend-sg"
             ],
             "source_dest_check": true,
             "spot_instance_request_id": "",
-            "subnet_id": "subnet-0ab15a52d74c78373",
+            "subnet_id": "subnet-04111fea7659260e3",
             "tags": {
               "Name": "lti-project-backend"
             },
@@ -470,19 +280,18 @@
             },
             "tenancy": "default",
             "timeouts": null,
-            "user_data": "a1d8d1e76efd1eb5154c8dd8deb4aaeef02a07d5",
+            "user_data": "412e50e41bd218a4ab291e4d14e7efb4b081c7e5",
             "user_data_base64": null,
             "user_data_replace_on_change": false,
             "volume_tags": null,
             "vpc_security_group_ids": [
-              "sg-06c18097bc57f54f1"
+              "sg-0d32c82210dfba5e4"
             ]
           },
           "sensitive_attributes": [],
           "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjo2MDAwMDAwMDAwMDAsImRlbGV0ZSI6MTIwMDAwMDAwMDAwMCwicmVhZCI6OTAwMDAwMDAwMDAwLCJ1cGRhdGUiOjYwMDAwMDAwMDAwMH0sInNjaGVtYV92ZXJzaW9uIjoiMSJ9",
           "dependencies": [
             "aws_iam_instance_profile.ec2_instance_profile",
-            "aws_iam_role.ec2_role",
             "aws_security_group.backend_sg"
           ]
         }
@@ -498,7 +307,7 @@
           "schema_version": 1,
           "attributes": {
             "ami": "ami-075d39ebbca89ed55",
-            "arn": "arn:aws:ec2:us-east-1:888577025833:instance/i-0d0d7271db7b0a568",
+            "arn": "arn:aws:ec2:us-east-1:221082204872:instance/i-085e9d2e08aa985b9",
             "associate_public_ip_address": true,
             "availability_zone": "us-east-1d",
             "capacity_reservation_specification": [
@@ -535,8 +344,8 @@
             "hibernation": false,
             "host_id": "",
             "host_resource_group_arn": null,
-            "iam_instance_profile": "lti-project-test-13-ec2-instance-profile",
-            "id": "i-0d0d7271db7b0a568",
+            "iam_instance_profile": "lti-project-ec2-instance-profile",
+            "id": "i-085e9d2e08aa985b9",
             "instance_initiated_shutdown_behavior": "stop",
             "instance_lifecycle": "",
             "instance_market_options": [],
@@ -566,8 +375,8 @@
             "password_data": "",
             "placement_group": "",
             "placement_partition_number": 0,
-            "primary_network_interface_id": "eni-07a2ff29beca3d1f8",
-            "private_dns": "ip-172-31-92-184.ec2.internal",
+            "primary_network_interface_id": "eni-00efa4627785e74c3",
+            "private_dns": "ip-172-31-95-196.ec2.internal",
             "private_dns_name_options": [
               {
                 "enable_resource_name_dns_a_record": false,
@@ -575,9 +384,9 @@
                 "hostname_type": "ip-name"
               }
             ],
-            "private_ip": "172.31.92.184",
-            "public_dns": "ec2-34-205-16-80.compute-1.amazonaws.com",
-            "public_ip": "34.205.16.80",
+            "private_ip": "172.31.95.196",
+            "public_dns": "ec2-54-144-209-36.compute-1.amazonaws.com",
+            "public_ip": "54.144.209.36",
             "root_block_device": [
               {
                 "delete_on_termination": true,
@@ -588,18 +397,18 @@
                 "tags": {},
                 "tags_all": {},
                 "throughput": 0,
-                "volume_id": "vol-0124149bbabae3b77",
+                "volume_id": "vol-0e59661f4c645de6f",
                 "volume_size": 8,
                 "volume_type": "gp2"
               }
             ],
             "secondary_private_ips": [],
             "security_groups": [
-              "lti-project-test-13-sg-frontend"
+              "lti-project-frontend-sg"
             ],
             "source_dest_check": true,
             "spot_instance_request_id": "",
-            "subnet_id": "subnet-0ab15a52d74c78373",
+            "subnet_id": "subnet-04111fea7659260e3",
             "tags": {
               "Name": "lti-project-frontend"
             },
@@ -608,19 +417,18 @@
             },
             "tenancy": "default",
             "timeouts": null,
-            "user_data": "64c3297fbbac250d830aec63e66c658c97ccd423",
+            "user_data": "9b4770cd63597f1f73c544c161b74e83d24e9550",
             "user_data_base64": null,
             "user_data_replace_on_change": false,
             "volume_tags": null,
             "vpc_security_group_ids": [
-              "sg-08e84c4571f00cb22"
+              "sg-01504f5c37d12fc4a"
             ]
           },
           "sensitive_attributes": [],
           "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjo2MDAwMDAwMDAwMDAsImRlbGV0ZSI6MTIwMDAwMDAwMDAwMCwicmVhZCI6OTAwMDAwMDAwMDAwLCJ1cGRhdGUiOjYwMDAwMDAwMDAwMH0sInNjaGVtYV92ZXJzaW9uIjoiMSJ9",
           "dependencies": [
             "aws_iam_instance_profile.ec2_instance_profile",
-            "aws_iam_role.ec2_role",
             "aws_security_group.frontend_sg"
           ]
         }
@@ -637,16 +445,16 @@
           "attributes": {
             "acceleration_status": "",
             "acl": "private",
-            "arn": "arn:aws:s3:::lti-project-test-13-code-bucket",
-            "bucket": "lti-project-test-13-code-bucket",
-            "bucket_domain_name": "lti-project-test-13-code-bucket.s3.amazonaws.com",
+            "arn": "arn:aws:s3:::lti-project-code-bucket",
+            "bucket": "lti-project-code-bucket",
+            "bucket_domain_name": "lti-project-code-bucket.s3.amazonaws.com",
             "bucket_prefix": "",
-            "bucket_regional_domain_name": "lti-project-test-13-code-bucket.s3.us-east-1.amazonaws.com",
+            "bucket_regional_domain_name": "lti-project-code-bucket.s3.us-east-1.amazonaws.com",
             "cors_rule": [],
             "force_destroy": false,
             "grant": [
               {
-                "id": "cd4215c520871addb68e21c0beaec895695e34e86efb50214e5d0f5bff317cf6",
+                "id": "baf283b4ff6364e4dc27023f9c3cf45021c219a8b084ec66b4631e7ae94a68b6",
                 "permissions": [
                   "FULL_CONTROL"
                 ],
@@ -655,7 +463,7 @@
               }
             ],
             "hosted_zone_id": "Z3AQBSTGFYJSTF",
-            "id": "lti-project-test-13-code-bucket",
+            "id": "lti-project-code-bucket",
             "lifecycle_rule": [],
             "logging": [],
             "object_lock_configuration": [],
@@ -679,7 +487,7 @@
                 ]
               }
             ],
-            "tags": null,
+            "tags": {},
             "tags_all": {},
             "timeouts": null,
             "versioning": [
@@ -707,8 +515,8 @@
           "schema_version": 0,
           "attributes": {
             "acl": "private",
-            "arn": "arn:aws:s3:::lti-project-test-13-code-bucket/backend.zip",
-            "bucket": "lti-project-test-13-code-bucket",
+            "arn": "arn:aws:s3:::lti-project-code-bucket/backend.zip",
+            "bucket": "lti-project-code-bucket",
             "bucket_key_enabled": false,
             "cache_control": "",
             "content": null,
@@ -717,12 +525,12 @@
             "content_encoding": "",
             "content_language": "",
             "content_type": "application/octet-stream",
-            "etag": "1555eb00a3097f8cf8ba8cecc65fa91f",
+            "etag": "ff7a928ae8489bfafbafc41f0d310d52",
             "force_destroy": false,
             "id": "backend.zip",
             "key": "backend.zip",
             "kms_key_id": null,
-            "metadata": null,
+            "metadata": {},
             "object_lock_legal_hold_status": "",
             "object_lock_mode": "",
             "object_lock_retain_until_date": "",
@@ -730,7 +538,7 @@
             "source": "../backend.zip",
             "source_hash": null,
             "storage_class": "STANDARD",
-            "tags": null,
+            "tags": {},
             "tags_all": {},
             "version_id": "",
             "website_redirect": ""
@@ -754,8 +562,8 @@
           "schema_version": 0,
           "attributes": {
             "acl": "private",
-            "arn": "arn:aws:s3:::lti-project-test-13-code-bucket/frontend.zip",
-            "bucket": "lti-project-test-13-code-bucket",
+            "arn": "arn:aws:s3:::lti-project-code-bucket/frontend.zip",
+            "bucket": "lti-project-code-bucket",
             "bucket_key_enabled": false,
             "cache_control": "",
             "content": null,
@@ -764,12 +572,12 @@
             "content_encoding": "",
             "content_language": "",
             "content_type": "application/octet-stream",
-            "etag": "52c1285cb9223463f2e0727397459fcd",
+            "etag": "a1f26db5338837184966865c94f283c3",
             "force_destroy": false,
             "id": "frontend.zip",
             "key": "frontend.zip",
             "kms_key_id": null,
-            "metadata": null,
+            "metadata": {},
             "object_lock_legal_hold_status": "",
             "object_lock_mode": "",
             "object_lock_retain_until_date": "",
@@ -777,7 +585,7 @@
             "source": "../frontend.zip",
             "source_hash": null,
             "storage_class": "STANDARD",
-            "tags": null,
+            "tags": {},
             "tags_all": {},
             "version_id": "",
             "website_redirect": ""
@@ -800,7 +608,7 @@
         {
           "schema_version": 1,
           "attributes": {
-            "arn": "arn:aws:ec2:us-east-1:888577025833:security-group/sg-06c18097bc57f54f1",
+            "arn": "arn:aws:ec2:us-east-1:221082204872:security-group/sg-0d32c82210dfba5e4",
             "description": "Allow HTTP and SSH access",
             "egress": [
               {
@@ -817,7 +625,7 @@
                 "to_port": 0
               }
             ],
-            "id": "sg-06c18097bc57f54f1",
+            "id": "sg-0d32c82210dfba5e4",
             "ingress": [
               {
                 "cidr_blocks": [
@@ -846,14 +654,14 @@
                 "to_port": 8080
               }
             ],
-            "name": "lti-project-test-13-sg-backend",
+            "name": "lti-project-backend-sg",
             "name_prefix": "",
-            "owner_id": "888577025833",
+            "owner_id": "221082204872",
             "revoke_rules_on_delete": false,
-            "tags": null,
+            "tags": {},
             "tags_all": {},
             "timeouts": null,
-            "vpc_id": "vpc-0fba7265419409fdd"
+            "vpc_id": "vpc-0c2301a918f033073"
           },
           "sensitive_attributes": [],
           "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjo2MDAwMDAwMDAwMDAsImRlbGV0ZSI6OTAwMDAwMDAwMDAwfSwic2NoZW1hX3ZlcnNpb24iOiIxIn0="
@@ -869,7 +677,7 @@
         {
           "schema_version": 1,
           "attributes": {
-            "arn": "arn:aws:ec2:us-east-1:888577025833:security-group/sg-08e84c4571f00cb22",
+            "arn": "arn:aws:ec2:us-east-1:221082204872:security-group/sg-01504f5c37d12fc4a",
             "description": "Allow HTTP and SSH access",
             "egress": [
               {
@@ -886,7 +694,7 @@
                 "to_port": 0
               }
             ],
-            "id": "sg-08e84c4571f00cb22",
+            "id": "sg-01504f5c37d12fc4a",
             "ingress": [
               {
                 "cidr_blocks": [
@@ -915,14 +723,14 @@
                 "to_port": 3000
               }
             ],
-            "name": "lti-project-test-13-sg-frontend",
+            "name": "lti-project-frontend-sg",
             "name_prefix": "",
-            "owner_id": "888577025833",
+            "owner_id": "221082204872",
             "revoke_rules_on_delete": false,
-            "tags": null,
+            "tags": {},
             "tags_all": {},
             "timeouts": null,
-            "vpc_id": "vpc-0fba7265419409fdd"
+            "vpc_id": "vpc-0c2301a918f033073"
           },
           "sensitive_attributes": [],
           "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjo2MDAwMDAwMDAwMDAsImRlbGV0ZSI6OTAwMDAwMDAwMDAwfSwic2NoZW1hX3ZlcnNpb24iOiIxIn0="
@@ -938,9 +746,9 @@
         {
           "schema_version": 0,
           "attributes": {
-            "id": "8420493404555321075",
+            "id": "3988071861090178270",
             "triggers": {
-              "always_run": "2024-08-31T11:48:42Z"
+              "always_run": "2024-08-27T11:00:38Z"
             }
           },
           "sensitive_attributes": []
