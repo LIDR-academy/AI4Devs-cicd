@@ -4,6 +4,9 @@ FROM node:23.8.0-alpine3.21
 # Establecer el directorio de trabajo
 WORKDIR /usr/src/app
 
+# Instalar OpenSSL y otras dependencias necesarias para Prisma
+RUN apk add --no-cache openssl openssl-dev libc6-compat
+
 # Copiar los archivos de package.json y package-lock.json
 COPY package*.json ./
 

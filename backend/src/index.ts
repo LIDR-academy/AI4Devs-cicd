@@ -62,7 +62,7 @@ app.use((err: any, req: Request, res: Response, next: NextFunction) => {
   res.type('text/plain');
   res.status(500).send('Something broke!');
 });
-app.listen(port, '0.0.0.0', () => {
+app.listen(port, () => {
   console.log(`Server is running at http://yourip:${port}`);
 });
 
