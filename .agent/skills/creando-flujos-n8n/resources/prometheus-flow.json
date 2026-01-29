@@ -1,0 +1,101 @@
+{
+    "name": "Prometheus Alert Handler",
+    "nodes": [
+        {
+            "parameters": {
+                "path": "prometheus-alert",
+                "responseMode": "lastNode",
+                "options": {}
+            },
+            "type": "n8n-nodes-base.webhook",
+            "typeVersion": 1,
+            "position": [
+                0,
+                0
+            ],
+            "id": "webhook-trigger",
+            "name": "Prometheus Webhook",
+            "webhookId": "prometheus-alert"
+        },
+        {
+            "parameters": {
+                "method": "POST",
+                "url": "=http://kagent-controller.kagent.svc.cluster.local:8083/invoke",
+                "jsonParameters": true,
+                "options": {},
+                "bodyParametersUi": {
+                    "parameter": [
+                        {
+                            "name": "agent",
+                            "value": "kagent/k8s-agent"
+                        },
+                        {
+                            "name": "task",
+                            "value": "Analyze the alert received from Prometheus and suggest remediation steps."
+                        },
+                        {
+                            "name": "namespace",
+                            "value": "kagent"
+                        }
+                    ]
+                }
+            },
+            "type": "n8n-nodes-base.httpRequest",
+            "typeVersion": 1,
+            "position": [
+                250,
+                0
+            ],
+            "id": "invoke-kagent",
+            "name": "Invoke Kagent Triage"
+        },
+        {
+            "parameters": {
+                "method": "POST",
+                "url": "https://hooks.slack.com/triggers/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",
+                "jsonParameters": true,
+                "options": {},
+                "bodyParametersUi": {
+                    "parameter": [
+                        {
+                            "name": "text",
+                            "value": "=Prometheus Alert: {{ $node[\"webhook-trigger\"].json[\"commonLabels\"][\"alertname\"] }} - Assessment from Kagent: {{ $json[\"message\"] }}"
+                        }
+                    ]
+                }
+            },
+            "type": "n8n-nodes-base.httpRequest",
+            "typeVersion": 1,
+            "position": [
+                500,
+                0
+            ],
+            "id": "notify-slack",
+            "name": "Send to Slack"
+        }
+    ],
+    "connections": {
+        "Prometheus Webhook": {
+            "main": [
+                [
+                    {
+                        "node": "Invoke Kagent Triage",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Invoke Kagent Triage": {
+            "main": [
+                [
+                    {
+                        "node": "Send to Slack",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        }
+    }
+}
