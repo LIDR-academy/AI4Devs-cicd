@@ -55,4 +55,27 @@ kagent invoke --agent "k8s-agent" --namespace "kagent" --task "List all pods"
 
 ## Errores Comunes
 - **`Error invoking session: ... 404 page not found`**: Verifica el `kubecl port-forward`.
-- **`Invalid agent format`**: Asegúrate de usar `--namespace "kagent"` y poner solo el nombre del agente (ej. `k8s-agent`) en `--agent`, o usar el formato completo si la herramienta lo soporta (pero separado es más seguro).
+- **`Invalid agent format`**: Asegúrate de usar `--namespace "kagent"` y poner solo el nombre del agente (ej. `k8s-agent`) en `--agent`.
+
+### 4. Interacción y Sesiones
+Kagent soporta conversaciones continuas usando IDs de sesión.
+- Cuando ejecutas (`invoke`), kagent retorna un `contextId` o `sessionId`.
+- Para responder a una pregunta del agente (ej. confirmar instalación), usa el flag `--session`.
+
+**Ejemplo de flujo interactivo:**
+1. Invocación inicial:
+   ```bash
+   kagent invoke --agent "helm-agent" --namespace "kagent" --task "Install prometheus"
+   # Salida: "... Do you want to proceed? (Session ID: 383050f3...)"
+   ```
+2. Respuesta en la misma sesión:
+   ```bash
+   kagent invoke --agent "helm-agent" --namespace "kagent" --session "383050f3..." --task "Yes, proceed with default values"
+   ```
+
+### 5. Agentes Comunes
+Algunos agentes útiles que puedes encontrar:
+- **`k8s-agent`**: Gestión general de recursos Kubernetes (pods, deployments, services).
+- **`helm-agent`**: Gestión de repositorios y releases de Helm. Útil para instalar stacks complejos como Prometheus.
+  - *Ejemplo*: `Add prometheus-community repo and install prometheus in monitoring namespace`.
+- **`cilium-*`**: Para depuración y gestión de redes Cilium.
