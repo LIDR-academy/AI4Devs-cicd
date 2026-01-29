@@ -1,15 +1,16 @@
 {
-    "name": "Prometheus Alert Handler",
+    "name": "Prometheus-Kagent-Flow-v4",
+    "active": true,
     "nodes": [
         {
             "parameters": {
                 "httpMethod": "POST",
                 "path": "prometheus-alert",
-                "responseMode": "lastNode",
+                "responseMode": "responseNode",
                 "options": {}
             },
             "type": "n8n-nodes-base.webhook",
-            "typeVersion": 1,
+            "typeVersion": 2,
             "position": [
                 0,
                 0
@@ -21,30 +22,27 @@
         {
             "parameters": {
                 "method": "POST",
-                "url": "=http://kagent-controller.kagent.svc.cluster.local:8083/invoke",
-                "jsonParameters": true,
-                "options": {},
-                "bodyParametersUi": {
-                    "parameter": [
+                "url": "http://kagent-controller.kagent.svc.cluster.local:8083/api/a2a/kagent/k8s-agent/",
+                "sendHeaders": true,
+                "headerParameters": {
+                    "parameters": [
                         {
-                            "name": "agent",
-                            "value": "kagent/k8s-agent"
-                        },
-                        {
-                            "name": "task",
-                            "value": "Analyze the alert received from Prometheus and suggest remediation steps."
-                        },
-                        {
-                            "name": "namespace",
-                            "value": "kagent"
+                            "name": "Content-Type",
+                            "value": "application/json"
                         }
                     ]
+                },
+                "sendBody": true,
+                "specifyBody": "json",
+                "jsonBody": "={{ { \"jsonrpc\": \"2.0\", \"method\": \"message/send\", \"params\": { \"message\": { \"role\": \"user\", \"parts\": [ { \"kind\": \"text\", \"text\": \"Analyze this Prometheus alert and provide triage steps: \" + JSON.stringify($json) } ] } }, \"id\": 1 } }}",
+                "options": {
+                    "timeout": 120000
                 }
             },
             "type": "n8n-nodes-base.httpRequest",
-            "typeVersion": 1,
+            "typeVersion": 4.2,
             "position": [
-                250,
+                300,
                 0
             ],
             "id": "invoke-kagent",
@@ -54,25 +52,45 @@
             "parameters": {
                 "method": "POST",
                 "url": "https://hooks.slack.com/triggers/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",
-                "jsonParameters": true,
-                "options": {},
-                "bodyParametersUi": {
-                    "parameter": [
+                "sendHeaders": true,
+                "headerParameters": {
+                    "parameters": [
                         {
-                            "name": "text",
-                            "value": "=Prometheus Alert: {{ $node[\"webhook-trigger\"].json[\"commonLabels\"][\"alertname\"] }} - Assessment from Kagent: {{ $json[\"message\"] }}"
+                            "name": "Content-Type",
+                            "value": "application/json"
                         }
                     ]
+                },
+                "sendBody": true,
+                "specifyBody": "json",
+                "jsonBody": "={{ { \"text\": '🚨 Alert: ' + ($node['Prometheus Webhook']?.json?.alerts?.[0]?.labels?.alertname || 'Unknown') + '\\n📋 Kagent Triage: ' + ($json?.result?.history ? $json.result.history.filter(h => h.role === 'agent').map(h => h.parts.map(p => p.text).join('')).join('') : 'No response from Kagent') } }}",
+                "options": {
+                    "timeout": 10000,
+                    "alwaysOutputData": true
                 }
             },
             "type": "n8n-nodes-base.httpRequest",
-            "typeVersion": 1,
+            "typeVersion": 4.2,
             "position": [
-                500,
+                600,
                 0
             ],
             "id": "notify-slack",
             "name": "Send to Slack"
+        },
+        {
+            "parameters": {
+                "respondWith": "text",
+                "responseBody": "OK"
+            },
+            "type": "n8n-nodes-base.respondToWebhook",
+            "typeVersion": 1,
+            "position": [
+                900,
+                0
+            ],
+            "id": "respond",
+            "name": "Respond OK"
         }
     ],
     "connections": {
@@ -92,6 +110,17 @@
                 [
                     {
                         "node": "Send to Slack",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Send to Slack": {
+            "main": [
+                [
+                    {
+                        "node": "Respond OK",
                         "type": "main",
                         "index": 0
                     }

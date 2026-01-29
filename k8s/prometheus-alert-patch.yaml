@@ -1,0 +1,26 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-server
+  namespace: monitoring
+  labels:
+    app.kubernetes.io/component: server
+    app.kubernetes.io/instance: prometheus
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: prometheus
+    app.kubernetes.io/part-of: prometheus
+    app.kubernetes.io/version: v3.9.1
+    helm.sh/chart: prometheus-28.6.1
+data:
+  alerting_rules.yml: |
+    groups:
+    - name: Instances
+      rules:
+      - alert: InstanceDown
+        expr: up == 1
+        for: 15s
+        labels:
+          severity: page
+        annotations:
+          description: 'Instance {{ $labels.instance }} of job {{ $labels.job }} has been down for more than 1 minute.'
+          summary: 'Instance {{ $labels.instance }} down'
