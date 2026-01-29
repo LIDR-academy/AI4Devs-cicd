@@ -3,6 +3,7 @@
     "nodes": [
         {
             "parameters": {
+                "httpMethod": "POST",
                 "path": "prometheus-alert",
                 "responseMode": "lastNode",
                 "options": {}
