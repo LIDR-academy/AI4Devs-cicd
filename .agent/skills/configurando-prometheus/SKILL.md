@@ -1,6 +1,6 @@
 ---
 nombre: configurando-prometheus
-descripción: Guía para desplegar Prometheus, configurar Alertmanager y gestionar reglas de alerta con integración externa (n8n/Kagent).
+descripción: Guía para desplegar Prometheus, configurar Alertmanager y gestionar reglas de alerta con integración externa.
 ---
 
 # Configurando Prometheus y Alertmanager

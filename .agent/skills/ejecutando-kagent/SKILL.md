@@ -1,69 +1,110 @@
----
-nombre: ejecutando-kagent
-descripción: Guía para operar el CLI de kagent e integrarlo programáticamente (A2A) con otros servicios como n8n.
----
-
 # Ejecutando Kagent
 
 ## Cuándo usar esta habilidad
 - Cuando necesites invocar un agente de kagent desde la terminal local.
-- Para configurar la `OPENAI_API_KEY` en el controlador.
-- Para integrar Kagent con otros servicios (n8n, Prometheus) via API A2A.
+- Para configurar la `OPENAI_API_KEY` o proveedores de LLM.
+- Para gestionar servidores MCP (Model Context Protocol).
+- Para integrar Kagent con otros servicios via API A2A.
 
-## Flujo de trabajo
-1. **Conectar**: [ ] Establecer `port-forward` al servicio `kagent-controller`.
-2. **Configurar**: [ ] Asegurar que la `OPENAI_API_KEY` esté configurada.
-3. **Invocar CLI**: [ ] Ejecutar tareas usando el binario `kagent`.
-4. **Integrar A2A**: [ ] Configurar HTTP Requests siguiendo el protocolo JSON-RPC 2.0.
+## Flujo de trabajo Robusto
 
-## Instrucciones
+### 1. Preparar el Entorno (Túneles)
+Para que el CLI, el Dashboard y los servidores MCP funcionen correctamente, es vital tener los túneles activos.
 
-### 1. Establecer Conexión (CLI Local)
-El CLI de kagent busca por defecto en `localhost:8083`.
+**Opción A: Usar `kagent dashboard`** (recomendado)
 ```bash
-kubectl port-forward svc/kagent-controller -n kagent 8083:8083
+# Mata cualquier port-forward zombie antes de ejecutar
+pkill -f "kubectl port-forward" 2>/dev/null
+kagent dashboard
+```
+El comando configurará automáticamente los túneles para el controller (8083) y UI (8082).
+
+**Opción B: Configuración manual**
+```bash
+# Túnel para el Controller y Dashboard
+kubectl port-forward svc/kagent-controller -n kagent 8083:8083 > /dev/null 2>&1 &
+kubectl port-forward svc/kagent-ui -n kagent 8082:8080 > /dev/null 2>&1 &
+
+# Túneles para MCP (Model Context Protocol)
+kubectl port-forward svc/kagent-grafana-mcp -n kagent 8000:8000 > /dev/null 2>&1 &
+kubectl port-forward svc/kagent-tools -n kagent 8084:8084 > /dev/null 2>&1 &
 ```
 
-### 2. Configuración de API Key
-Kagent requiere una `OPENAI_API_KEY` para que los agentes operen:
-```bash
-kubectl set env deployment/kagent-controller -n kagent OPENAI_API_KEY=tu-api-key-aqui
-```
+### 2. Configuración de MCP (Model Context Protocol) en IDE/Antigravity
+Para usar las herramientas de Kagent y Grafana directamente desde el IDE (Antigravity), configura tu `mcp_config.json` usando `@nimbletools/mcp-http-bridge`.
 
-### 3. Invocación vía CLI
-**Sintaxis Robusta:**
-```bash
-kagent invoke --agent "k8s-agent" --namespace "kagent" --task "List pods in default"
-```
-*Si la tarea requiere confirmación, usa el flag `--session "<contextId>"` retornado en la primera respuesta.*
-
-### 4. Integración Agente a Agente (A2A)
-Para llamar a Kagent desde servicios internos (ej. n8n, scripts de Python):
-
-- **URL Interna (Cluster)**: `http://kagent-controller.kagent.svc.cluster.local:8083/api/a2a/kagent/k8s-agent/`
-- **Protocolo**: [JSON-RPC 2.0](https://www.jsonrpc.org/specification).
-- **Cuerpo (Body)**:
+**Configuración recomendada:**
 ```json
 {
-  "jsonrpc": "2.0",
-  "method": "message/send",
-  "params": {
-    "message": {
-      "role": "user",
-      "parts": [{ "kind": "text", "text": "Tu prompt aquí" }]
+  "mcpServers": {
+    "kagent-grafana": {
+      "command": "npx",
+      "args": ["-y", "@nimbletools/mcp-http-bridge", "-e", "http://localhost:8000/mcp", "-t", "tu-token"]
+    },
+    "kagent-tools": {
+      "command": "npx",
+      "args": ["-y", "@nimbletools/mcp-http-bridge", "-e", "http://localhost:8084/mcp", "-t", "tu-token"]
     }
-  },
-  "id": 1
+  }
 }
 ```
 
-### 💡 Tips para Integración Robusta (n8n/Alertmanager)
-1. **Timeouts**: Los LLM pueden tardar. Configura siempre un timeout de **al menos 2 minutos** en el cliente (n8n httpRequest o Alertmanager webhook).
-2. **Body Format**: En n8n, envía el JSON como **Objeto JSON** (no String) para evitar errores de escape en el controlador.
-3. **Manejo de Respuestas**: Kagent devuelve un objeto con la llave `result.history`. El texto final suele estar en el último elemento con `role: "agent"`.
-4. **Tolerancia a Fallos**: Si integras con Slack, usa la opción "Always Output Data" en n8n para asegurar que el pipeline de alertas responda "OK" (200) incluso si la notificación final falla.
+### 3. Invocación vía CLI
+```bash
+kagent invoke --agent "k8s-agent" --namespace "kagent" --task "List pods in default"
+```
 
-## Errores Comunes
-- **`404 page not found`**: El port-forward no está activo o la URL A2A tiene un typo.
-- **`Invalid agent format`**: No incluyas el prefijo `kagent/` si ya especificas el namespace.
-- **`Context deadline exceeded`**: El timeout del cliente es muy corto para la respuesta del LLM.
+### 4. Protocolo A2A (Manual HTTP)
+Si necesitas integrar Kagent con otros servicios o realizar pruebas manuales sin el CLI, usa el protocolo A2A vía HTTP (JSON-RPC 2.0).
+
+**URL Base del Agente:**
+`http://localhost:8083/api/a2a/{namespace}/{agent-name}/`
+
+**Descubrimiento de Capacidades:**
+Para ver qué habilidades (skills) tiene un agente:
+```bash
+curl -s http://localhost:8083/api/a2a/default/k8s-agent/.well-known/agent.json | jq .
+```
+
+**Invocación Manual (JSON-RPC):**
+El método correcto es `message/send`.
+```bash
+curl -s -X POST -H "Content-Type: application/json" \
+  -d '{
+    "jsonrpc": "2.0",
+    "id": "1",
+    "method": "message/send",
+    "params": {
+      "message": {
+        "kind": "message",
+        "parts": [{"kind": "text", "text": "List pods"}],
+        "role": "user"
+      }
+    }
+  }' \
+  http://localhost:8083/api/a2a/default/k8s-agent/ | jq .
+```
+
+## Solución de Problemas
+...
+
+### kagent dashboard falla con "exit status 1"
+**Causa**: Hay port-forwards zombies de sesiones anteriores bloqueando los puertos.
+**Solución**:
+```bash
+pkill -f "kubectl port-forward"
+kagent dashboard
+```
+
+### HTTP 404: Not Found (MCP)
+- Asegura que el endpoint del bridge termine en `/mcp` (ej. `http://localhost:8084/mcp`).
+- No uses los paths `/api/a2a/mcp/...` del controller; conecta directamente a los servicios (`8000` para Grafana, `8084` para Tools).
+
+### Port 8000 Conflict
+- El puerto `8000` suele ser usado por entornos de desarrollo (Django, etc.).
+- Verifica qué proceso ocupa el puerto: `lsof -i :8000`.
+- Detén contenedores que interfieran: `docker stop <container_id>`.
+
+### Unexpected Content Type (MCP)
+- Ocurre cuando el bridge intenta conectar a un puerto que no sirve SSE.
+- Verifica que el `port-forward` esté activo: `lsof -i :8084`.
