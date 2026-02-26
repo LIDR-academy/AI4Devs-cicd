@@ -22,12 +22,12 @@ El comando configurará automáticamente los túneles para el controller (8083) 
 **Opción B: Configuración manual**
 ```bash
 # Túnel para el Controller y Dashboard
-kubectl port-forward svc/kagent-controller -n kagent 8083:8083 > /dev/null 2>&1 &
-kubectl port-forward svc/kagent-ui -n kagent 8082:8080 > /dev/null 2>&1 &
+kubectl port-forward svc/kagent-controller -n default 8083:8083 > /dev/null 2>&1 &
+kubectl port-forward svc/kagent-ui -n default 8082:8080 > /dev/null 2>&1 &
 
 # Túneles para MCP (Model Context Protocol)
-kubectl port-forward svc/kagent-grafana-mcp -n kagent 8000:8000 > /dev/null 2>&1 &
-kubectl port-forward svc/kagent-tools -n kagent 8084:8084 > /dev/null 2>&1 &
+kubectl port-forward svc/kagent-grafana-mcp -n default 8000:8000 > /dev/null 2>&1 &
+kubectl port-forward svc/kagent-tools -n default 8084:8084 > /dev/null 2>&1 &
 ```
 
 ### 2. Configuración de MCP (Model Context Protocol) en IDE/Antigravity
@@ -51,38 +51,45 @@ Para usar las herramientas de Kagent y Grafana directamente desde el IDE (Antigr
 
 ### 3. Invocación vía CLI
 ```bash
-kagent invoke --agent "k8s-agent" --namespace "kagent" --task "List pods in default"
+kagent invoke --agent "k8s-agent" -n default --task "List pods in default" --stream --kagent-url http://localhost:8083
 ```
 
 ### 4. Protocolo A2A (Manual HTTP)
 Si necesitas integrar Kagent con otros servicios o realizar pruebas manuales sin el CLI, usa el protocolo A2A vía HTTP (JSON-RPC 2.0).
 
-**URL Base del Agente:**
-`http://localhost:8083/api/a2a/{namespace}/{agent-name}/`
+> **IMPORTANTE:** El controller (`8083`) **no** proxea las llamadas A2A. Cada agente expone su propio endpoint en el puerto `8080`. Debes hacer port-forward **directamente al servicio del agente**.
 
-**Descubrimiento de Capacidades:**
-Para ver qué habilidades (skills) tiene un agente:
+**Paso 1 — Port-forward al agente deseado:**
 ```bash
-curl -s http://localhost:8083/api/a2a/default/k8s-agent/.well-known/agent.json | jq .
+kubectl port-forward svc/k8s-agent 19080:8080 -n default &
 ```
 
-**Invocación Manual (JSON-RPC):**
-El método correcto es `message/send`.
+**Paso 2 — Descubrimiento de capacidades (Agent Card):**
 ```bash
-curl -s -X POST -H "Content-Type: application/json" \
+curl -s http://localhost:19080/.well-known/agent.json | jq .
+```
+
+**Paso 3 — Invocación Manual (JSON-RPC):**
+El método correcto en A2A 0.3.0 es `message/send`.
+```bash
+curl -s -X POST http://localhost:19080/ \
+  -H "Content-Type: application/json" \
   -d '{
     "jsonrpc": "2.0",
     "id": "1",
     "method": "message/send",
     "params": {
       "message": {
-        "kind": "message",
-        "parts": [{"kind": "text", "text": "List pods"}],
-        "role": "user"
+        "messageId": "msg-001",
+        "role": "user",
+        "parts": [{"kind": "text", "text": "List pods in default namespace"}]
       }
     }
-  }' \
-  http://localhost:8083/api/a2a/default/k8s-agent/ | jq .
+  }' | jq .
+```
+
+> **Nota:** No incluyas `taskId` para crear una nueva sesión. El agente generará uno automáticamente.
+> El método `tasks/send` **no existe** en la versión 0.3.0 — usar `message/send`.
 ```
 
 ## Solución de Problemas
