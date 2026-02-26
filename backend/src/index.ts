@@ -57,6 +57,10 @@ app.get('/', (req, res) => {
   res.send('Hola LTI!');
 });
 
+app.get('/health', (req, res) => {
+  res.status(200).send('OK');
+});
+
 app.use((err: any, req: Request, res: Response, next: NextFunction) => {
   console.error(err.stack);
   res.type('text/plain');
