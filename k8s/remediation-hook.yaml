@@ -1,0 +1,13 @@
+apiVersion: kagent.dev/v1alpha2
+kind: Hook
+metadata:
+  name: sre-remediation-hook
+  namespace: default
+spec:
+  eventConfigurations:
+    - eventType: pod-restart
+      agentId: sre-agent
+      prompt: |
+        Se ha detectado un reinicio en el pod '{{.ResourceName}}' en el namespace '{{.Namespace}}'. 
+        Por favor, actúa como el SRE de guardia, investiga las causas de la falla leyendo los logs y la descripción del pod mediante tu servidor MCP de herramientas, y aplica una acción correctiva si procede. 
+        Reporta tus hallazgos.

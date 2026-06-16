@@ -1,0 +1,10 @@
+apiVersion: kagent.dev/v1alpha2
+kind: ModelConfig
+metadata:
+  name: default-model-config
+  namespace: default
+spec:
+  provider: OpenAI
+  model: gpt-4o-mini
+  apiKeySecret: openai-secret
+  apiKeySecretKey: OPENAI_API_KEY

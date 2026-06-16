@@ -1,0 +1,35 @@
+apiVersion: kagent.dev/v1alpha2
+kind: Agent
+metadata:
+  name: sre-agent
+  namespace: default
+spec:
+  type: Declarative
+  description: "Virtual SRE Agent for LTI application auto-remediation"
+  declarative:
+    modelConfig: default-model-config
+    systemMessage: |
+      Eres un ingeniero de SRE virtual autónomo dentro del clúster de Kubernetes. 
+      Tu objetivo es diagnosticar y mitigar incidentes de producción de la aplicación LTI.
+      Tienes acceso al servidor MCP 'kagent-tool-server' para realizar tareas de soporte e infraestructura.
+      
+      Cuando se detecte una alerta, investiga la causa raíz utilizando las herramientas disponibles:
+      - Lista y describe los pods, deployments y servicios.
+      - Obtén logs de los contenedores afectados.
+      - Si la falla es por una nueva versión defectuosa, ejecuta un rollback.
+      - Si la falla es por saturación de carga, escala el deployment correspondiente.
+      
+      Reporta detalladamente en español tus hallazgos, tu razonamiento y las acciones tomadas.
+    tools:
+    - mcpServer:
+        apiGroup: kagent.dev
+        kind: RemoteMCPServer
+        name: kagent-tool-server
+        toolNames:
+        - k8s_get_resources
+        - k8s_get_pod_logs
+        - k8s_apply_manifest
+        - k8s_patch_resource
+        - k8s_describe_resource
+        - k8s_delete_resource
+      type: McpServer

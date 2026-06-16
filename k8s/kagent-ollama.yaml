@@ -1,0 +1,10 @@
+apiVersion: kagent.dev/v1alpha2
+kind: ModelConfig
+metadata:
+  name: default-model-config
+  namespace: default
+spec:
+  provider: Ollama
+  model: qwen2.5-coder:7b
+  ollama:
+    host: http://host.docker.internal:11434

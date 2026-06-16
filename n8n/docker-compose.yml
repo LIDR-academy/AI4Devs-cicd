@@ -1,0 +1,28 @@
+version: "3.7"
+
+services:
+  n8n:
+    image: docker.n8n.io/n8nio/n8n:latest
+    restart: always
+    ports:
+      - "5678:5678"
+    environment:
+      - N8N_BASIC_AUTH_ACTIVE=false
+      - NODE_FUNCTION_ALLOW_EXTERNAL=*
+      - EXECUTIONS_PROCESS=main
+    volumes:
+      - n8n_data:/home/node/.n8n
+      # Montar el archivo kubeconfig para que n8n pueda ejecutar kubectl desde el contenedor si fuera necesario
+      - ${HOME}/.kube:/home/node/.kube:ro
+    # Instalar kubectl en el contenedor de n8n para que funcione el nodo Execute Command
+    user: root
+    entrypoint: >
+      bash -c "
+      apt-get update && apt-get install -y curl &&
+      curl -LO 'https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl' &&
+      install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl &&
+      gosu node n8n
+      "
+
+volumes:
+  n8n_data:

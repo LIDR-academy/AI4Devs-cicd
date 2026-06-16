@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clase: Observabilidad Inteligente y Auto-Remediación en Kubernetes con Kagent (AI Agents)</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 950px;
+            margin: 0 auto;
+            padding: 25px;
+            background-color: #f7fafc;
+        }
+        h1, h2, h3 {
+            color: #2b6cb0;
+        }
+        h1 {
+            border-bottom: 3px solid #2b6cb0;
+            padding-bottom: 12px;
+            margin-bottom: 30px;
+            font-size: 2.2em;
+        }
+        h2 {
+            border-bottom: 1px solid #cbd5e0;
+            padding-bottom: 8px;
+            margin-top: 45px;
+            font-size: 1.6em;
+        }
+        h3 {
+            margin-top: 25px;
+            font-size: 1.25em;
+        }
+        pre {
+            background-color: #1a202c;
+            color: #f7fafc;
+            padding: 18px;
+            border-radius: 8px;
+            overflow-x: auto;
+            border: 1px solid #4a5568;
+            font-size: 14px;
+            margin: 15px 0;
+        }
+        code {
+            font-family: 'Fira Code', 'Courier New', Courier, monospace;
+        }
+        .note {
+            background-color: #ebf8ff;
+            border-left: 4px solid #3182ce;
+            color: #2b6cb0;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .warning {
+            background-color: #fffaf0;
+            border-left: 4px solid #dd6b20;
+            color: #dd6b20;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .alert-box {
+            background-color: #fff5f5;
+            border-left: 4px solid #e53e3e;
+            color: #c53030;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 25px 0;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        th, td {
+            border: 1px solid #e2e8f0;
+            padding: 14px;
+            text-align: left;
+        }
+        th {
+            background-color: #edf2f7;
+            color: #2d3748;
+            font-weight: 600;
+        }
+        tr:nth-child(even) {
+            background-color: #edf2f7;
+        }
+        ul, ol {
+            margin-bottom: 25px;
+            padding-left: 20px;
+        }
+        li {
+            margin-bottom: 10px;
+        }
+        hr {
+            border: 0;
+            height: 1px;
+            background: #cbd5e0;
+            margin: 45px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Clase: Observabilidad Inteligente y Auto-Remediación en Kubernetes con Kagent</h1>
+
+    <h2>Objetivo de la Clase</h2>
+    <p>En esta sesión práctica, aprenderemos a monitorizar aplicaciones desplegadas en <strong>Kubernetes (k8s)</strong> y automatizar la respuesta ante incidentes utilizando <strong>Kagent</strong>, un framework nativo de Kubernetes para agentes de IA. Integraremos Prometheus y Grafana con la API de Kubernetes y utilizaremos servidores <strong>MCP (Model Context Protocol)</strong> para permitir que un agente de IA diagnostique y solucione fallas del clúster de forma autónoma.</p>
+
+    <div class="note">
+        <strong>¿Qué es Kagent?</strong> Kagent es un framework que ejecuta agentes de IA como cargas de trabajo nativas de Kubernetes. Utiliza CRDs (Custom Resource Definitions) como <code>ModelConfig</code> y <code>Agent</code> para conectar LLMs con servidores MCP que les otorgan herramientas para interactuar con el clúster.
+    </div>
+
+    <hr>
+
+    <h2>Paso 1: Despliegue de la Aplicación en Kubernetes</h2>
+    <p>Nuestra aplicación LTI ya cuenta con sus manifiestos base en la carpeta <code>k8s/</code> (base de datos, backend y frontend). Procederemos a aplicarlos en el clúster.</p>
+    
+    <pre><code class="language-sh"># Aplicar los manifiestos de la base de datos y la aplicación LTI
+kubectl apply -f k8s/db.yaml
+kubectl apply -f k8s/backend.yaml
+kubectl apply -f k8s/frontend.yaml
+</code></pre>
+
+    <p>Para comprobar que todo está ejecutándose correctamente:</p>
+    <pre><code class="language-sh">kubectl get pods,svc
+</code></pre>
+
+    <hr>
+
+    <h2>Paso 2: Instalación de la Suite de Observabilidad en Kubernetes</h2>
+    <p>Desplegaremos Prometheus y Grafana dentro de nuestro clúster de Kubernetes para recoger las métricas del backend del LTI.</p>
+
+    <h3>2.1. Crear el manifiesto de Observabilidad: <code>k8s/observability.yaml</code></h3>
+    <pre><code class="language-yaml">apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-config
+  namespace: default
+data:
+  prometheus.yml: |
+    global:
+      scrape_interval: 15s
+    rule_files:
+      - /etc/prometheus/alert.rules.yml
+    scrape_configs:
+      - job_name: 'lti-backend'
+        static_configs:
+          - targets: ['backend:8080']
+  alert.rules.yml: |
+    groups:
+      - name: lti-alerts
+        rules:
+          - alert: HighLatencyP99
+            expr: http_request_duration_seconds{quantile="0.99"} > 0.5
+            for: 1m
+            labels:
+              severity: critical
+            annotations:
+              summary: "Alta latencia detectada en el Backend"
+              description: "La latencia del percentil 99 (P99) ha superado los 500ms durante más de 1 minuto."
+          - alert: HighErrorRate
+            expr: rate(http_requests_total{status=~"5.."}[1m]) / rate(http_requests_total[1m]) * 100 > 5
+            for: 30s
+            labels:
+              severity: warning
+            annotations:
+              summary: "Tasa de errores 5xx elevada"
+              description: "Más del 5% de las solicitudes HTTP en el último minuto han devuelto errores 500."
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prometheus
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: prometheus
+  template:
+    metadata:
+      labels:
+        app: prometheus
+    spec:
+      containers:
+      - name: prometheus
+        image: prom/prometheus:latest
+        ports:
+        - containerPort: 9090
+        volumeMounts:
+        - name: config-volume
+          mountPath: /etc/prometheus
+      volumes:
+      - name: config-volume
+        configMap:
+          name: prometheus-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: prometheus
+  namespace: default
+spec:
+  ports:
+  - port: 9090
+    targetPort: 9090
+  selector:
+    app: prometheus
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: grafana
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: grafana
+  template:
+    metadata:
+      labels:
+        app: grafana
+    spec:
+      containers:
+      - name: grafana
+        image: grafana/grafana:latest
+        ports:
+        - containerPort: 3000
+        env:
+        - name: GF_SECURITY_ADMIN_PASSWORD
+          value: "admin"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: grafana
+  namespace: default
+spec:
+  ports:
+  - port: 3000
+    targetPort: 3000
+  selector:
+    app: grafana
+</code></pre>
+
+    <pre><code class="language-sh"># Aplicar Prometheus y Grafana en Kubernetes
+kubectl apply -f k8s/observability.yaml
+</code></pre>
+
+    <hr>
+
+    <h2>Paso 3: Configuración de Kagent y ModelConfig</h2>
+    <p>Para dotar de inteligencia a nuestro clúster, utilizaremos <strong>Kagent</strong> conectado a un LLM local (Ollama) o remoto (OpenAI/Gemini).</p>
+
+    <h3>3.1. Verificar o Crear el ModelConfig: <code>k8s/kagent-ollama.yaml</code></h3>
+    <pre><code class="language-yaml">apiVersion: kagent.dev/v1alpha2
+kind: ModelConfig
+metadata:
+  name: default-model-config
+  namespace: default
+spec:
+  provider: Ollama
+  model: gemma4:e2b
+  ollama:
+    host: http://host.docker.internal:11434
+</code></pre>
+
+    <div class="note">
+        <strong>Nota:</strong> Si deseas utilizar OpenAI, puedes configurar un `ModelConfig` que apunte al proveedor de OpenAI referenciando un secreto con la API Key correspondiente.
+    </div>
+
+    <hr>
+
+    <h2>Paso 4: Definición del Agente SRE con Servidores MCP</h2>
+    <p>Un agente inteligente necesita herramientas para actuar. A través del protocolo <strong>MCP (Model Context Protocol)</strong>, vincularemos herramientas de Kubernetes y Prometheus al agente para que pueda inspeccionar y resolver problemas de forma autónoma.</p>
+
+    <h3>4.1. Crear el manifiesto del Agente SRE: <code>k8s/agent-sre.yaml</code></h3>
+    <pre><code class="language-yaml">apiVersion: kagent.dev/v1alpha2
+kind: Agent
+metadata:
+  name: sre-agent
+  namespace: default
+spec:
+  type: Declarative
+  description: "Virtual SRE Agent for LTI application auto-remediation"
+  declarative:
+    modelConfig: default-model-config
+    systemMessage: |
+      Eres un ingeniero de SRE virtual autónomo dentro del clúster de Kubernetes. 
+      Tu objetivo es diagnosticar y mitigar incidentes de producción de la aplicación LTI.
+      Tienes acceso al servidor MCP 'kagent-tool-server' para realizar tareas de soporte e infraestructura.
+      
+      Cuando se detecte una alerta, investiga la causa raíz utilizando las herramientas disponibles:
+      - Lista y describe los pods, deployments y servicios.
+      - Obtén logs de los contenedores afectados.
+      - Si la falla es por una nueva versión defectuosa, ejecuta un rollback.
+      - Si la falla es por saturación de carga, escala el deployment correspondiente.
+      
+      Reporta detalladamente en español tus hallazgos, tu razonamiento y las acciones tomadas.
+    tools:
+    - mcpServer:
+        apiGroup: kagent.dev
+        kind: RemoteMCPServer
+        name: kagent-tool-server
+        toolNames:
+        - k8s_get_resources
+        - k8s_get_pod_logs
+        - k8s_apply_manifest
+        - k8s_patch_resource
+        - k8s_describe_resource
+        - k8s_delete_resource
+      type: McpServer
+</code></pre>
+
+    <pre><code class="language-sh"># Aplicar el Agente en el clúster
+kubectl apply -f k8s/agent-sre.yaml
+</code></pre>
+
+    <hr>
+
+    <h2>Paso 5: Automatización de la Remediación ante Eventos (Khooks)</h2>
+    <p>Para hacer reactivo al agente sin necesidad de configurar complejos webhooks en Alertmanager, utilizamos <strong>Khook</strong>, el controlador de Kubernetes para agentes reactivos de Kagent. Khook escucha eventos específicos del clúster (como reinicios de pods, fallos de OOM, o caídas de red) y activa el agente SRE correspondiente.</p>
+
+    <h3>5.1. Crear el manifiesto del Hook: <code>k8s/remediation-hook.yaml</code></h3>
+    <pre><code class="language-yaml">apiVersion: kagent.dev/v1alpha2
+kind: Hook
+metadata:
+  name: sre-remediation-hook
+  namespace: default
+spec:
+  eventConfigurations:
+    - eventType: pod-restart
+      agentId: sre-agent
+      prompt: |
+        Se ha detectado un reinicio en el pod '{{.ResourceName}}' en el namespace '{{.Namespace}}'. 
+        Por favor, actúa como el SRE de guardia, investiga las causas de la falla leyendo los logs y la descripción del pod mediante tu servidor MCP de herramientas, y aplica una acción correctiva si procede. 
+        Reporta tus hallazgos.
+</code></pre>
+
+    <pre><code class="language-sh"># Aplicar el Hook en el clúster
+kubectl apply -f k8s/remediation-hook.yaml
+</code></pre>
+
+    <div class="note">
+        <strong>Ventajas de Khook:</strong>
+        <ul>
+            <li><strong>Deduplicación & Debouncing:</strong> Evita saturar al LLM con alertas repetidas si un contenedor entra en CrashLoopBackOff.</li>
+            <li><strong>Nativo de Kubernetes:</strong> Usa el modelo de recursos declarativo de KRM en vez de servidores de mensajería externos.</li>
+            <li><strong>Control de Concurrencia:</strong> Asegura que solo se ejecute una instancia del agente a la vez para resolver el problema.</li>
+        </ul>
+    </div>
+
+    <hr>
+
+    <h2>Paso 6: Escenarios Comunes de Auto-Remediación en Kubernetes</h2>
+    <p>A continuación se detallan las respuestas automáticas que realiza el agente utilizando las herramientas de su servidor MCP de Kubernetes:</p>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Alerta Detectada</th>
+                <th>Causa Raíz</th>
+                <th>Acción de Kagent vía MCP</th>
+                <th>Acción Equivalente en CLI</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><strong>High Error Rate</strong></td>
+                <td>Bug introducido en nueva release.</td>
+                <td>Rollback automático al deployment previo.</td>
+                <td><code>kubectl rollout undo deployment/backend</code></td>
+            </tr>
+            <tr>
+                <td><strong>DDoS Attack</strong></td>
+                <td>Tráfico anómalo de una IP atacante.</td>
+                <td>Aplicar NetworkPolicy para aislar/bloquear la IP.</td>
+                <td><code>kubectl apply -f network-policy-block.yaml</code></td>
+            </tr>
+            <tr>
+                <td><strong>Disco Lleno (Disk Full)</strong></td>
+                <td>Acumulación de archivos de log efímeros.</td>
+                <td>Reiniciar pods para liberar el almacenamiento efímero.</td>
+                <td><code>kubectl rollout restart deployment/backend</code></td>
+            </tr>
+            <tr>
+                <td><strong>OOM Killed</strong></td>
+                <td>Límite de memoria superado en el pod.</td>
+                <td>Ajustar los resource limits en el Deployment.</td>
+                <td>Modificación de spec.resources del Deployment.</td>
+            </tr>
+            <tr>
+                <td><strong>Dependency Down</strong></td>
+                <td>API externa inaccesible.</td>
+                <td>Activar Circuit Breaker a nivel de ConfigMap.</td>
+                <td>Modificar ConfigMap para activar bypass offline.</td>
+            </tr>
+            <tr>
+                <td><strong>DB Connection Pool</strong></td>
+                <td>Saturación de conexiones en la base de datos.</td>
+                <td>Escalar el número de pods para distribuir carga.</td>
+                <td><code>kubectl scale deployment/backend --replicas=3</code></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <hr>
+
+    <h2>Paso 7: Guía de Simulación de Errores e Incidentes</h2>
+    <p>Para probar al agente SRE de forma práctica, hemos preparado un script en la raíz del proyecto llamado <code>simular_errores.sh</code>. Este script automatiza la inyección y recuperación de fallas en el clúster:</p>
+
+    <h3>7.1. Simular un fallo de memoria (OOM) en el Backend</h3>
+    <p>Esto forzará al pod de backend a entrar en <code>CrashLoopBackOff</code> por falta de RAM:</p>
+    <pre><code class="language-sh">./simular_errores.sh oom</code></pre>
+
+    <h3>7.2. Simular un fallo de descarga de imagen (ImagePullBackOff) en el Frontend</h3>
+    <p>Esto modificará el manifest para usar una tag de imagen inexistente:</p>
+    <pre><code class="language-sh">./simular_errores.sh image</code></pre>
+
+    <h3>7.3. Simular caída total de réplicas en el Backend</h3>
+    <p>Esto escalará a 0 réplicas el deployment de backend para verificar la indisponibilidad de servicio:</p>
+    <pre><code class="language-sh">./simular_errores.sh scale</code></pre>
+
+    <h3>7.4. Restaurar el clúster a su estado saludable</h3>
+    <p>Para limpiar y reestablecer todo una vez realizadas las pruebas:</p>
+    <pre><code class="language-sh">./simular_errores.sh restore</code></pre>
+
+    <hr>
+
+    <h2>Paso 8: Integración y Automatización con n8n</h2>
+    <p>En este paso, utilizaremos <strong>n8n</strong> como la plataforma de orquestación para coordinar las alertas generadas por Prometheus, enriquecerlas mediante inteligencia artificial (LLM) y disparar remediaciones automatizadas en Kubernetes utilizando <strong>Kagent</strong> y su agente de SRE.</p>
+
+    <h3>8.1. Ejercicio 1: Flujo de Diagnóstico Automatizado (Alerta -> LLM -> Slack)</h3>
+    <p>El objetivo de este flujo es recibir la alerta técnica de Prometheus, consultar el estado del pod afectado de forma automática, pasárselo a un LLM para diagnosticar el problema y publicar un informe en Slack con un botón para mitigar el error.</p>
+    <p>Configuración del Flujo en n8n:</p>
+    <ol>
+        <li><strong>Webhook Node:</strong> Expone un endpoint HTTP que recibe los JSONs de alerta de Prometheus Alertmanager (ej. fallo por OOM en el backend).</li>
+        <li><strong>HTTP Request Node (Kubernetes API):</strong> Consulta al pod afectado haciendo una petición GET a la API del clúster (o utilizando las herramientas del MCP server) para extraer los últimos 50 logs y el JSON de descripción del pod.</li>
+        <li><strong>Basic LLM Chain / AI Agent Node:</strong> Pasa la información recopilada (alerta, logs y descripción) a un nodo de modelo de lenguaje (como OpenAI u Ollama local). El System Message del LLM le indica actuar como un experto en diagnóstico y estructurar su análisis con:
+            <ul>
+                <li><strong>Diagnóstico:</strong> Qué ha fallado.</li>
+                <li><strong>Causa Raíz:</strong> Por qué ha fallado.</li>
+                <li><strong>Recomendación:</strong> Qué acciones de mitigación se sugieren.</li>
+            </ul>
+        </li>
+        <li><strong>Slack Node:</strong> Publica en el canal de alertas de Slack el reporte estructurado en español, agregando un botón interactivo llamado <em>"Ejecutar Auto-Remediación con SRE Agent"</em> que envía el evento a un segundo Webhook.</li>
+    </ol>
+
+    <h3>8.2. Ejercicio 2: Flujo de Remediación con SRE Agent (Acción Slack -> Kagent -> Slack Update)</h3>
+    <p>El objetivo de este segundo flujo es procesar el clic del usuario en Slack, disparar el SRE Agent de Kagent en el clúster de Kubernetes, capturar la acción realizada por el agente de IA, y actualizar el mensaje en Slack para reportar la solución.</p>
+    <p>Configuración del Flujo en n8n:</p>
+    <ol>
+        <li><strong>Webhook Node:</strong> Escucha los payloads interactivos de Slack activados al pulsar el botón <em>"Ejecutar Auto-Remediación con SRE Agent"</em>.</li>
+        <li><strong>HTTP Request Node (Kagent Run):</strong> Realiza una petición POST al endpoint de Kagent Controller (ej. <code>http://kagent-controller:8083/v1alpha2/namespaces/default/agents/sre-agent/run</code>) indicándole al agente SRE que ejecute el runbook para resolver el incidente actual.</li>
+        <li><strong>HTTP Request Node (Fetch Execution Trace):</strong> Consulta el resultado de la ejecución del agente (polling o callback) para recuperar qué herramientas utilizó (ej. <code>k8s_patch_resource</code> para escalar) y la descripción de la mitigación aplicada.</li>
+        <li><strong>Slack Node (Update):</strong> Actualiza el mensaje original del canal de alertas de Slack cambiando su estado a <em>"Resuelto (Auto-Remediado)"</em>, aplicando un color verde y detallando la acción de mitigación aplicada por el Agente SRE (ej. <em>"Escaladas las réplicas del Backend a 3 pods"</em>).</li>
+    </ol>
+
+    <hr>
+
+    <h2>Preguntas y Respuestas</h2>
+    <p><em>"En un entorno moderno nativo de la nube, Kagent y MCP transforman el modelo de alertas tradicional: pasamos de recibir alertas ruidosas en medio de la noche a tener un agente que analiza logs, consulta métricas y repara el clúster antes de que afecte a los usuarios finales."</em></p>
+
+</body>
+</html>
