@@ -1,5 +1,14 @@
 import multer from 'multer';
 import { Request, Response } from 'express';
+import path from 'path';
+
+// Security: Sanitize filename to prevent path traversal attacks
+const sanitizeFilename = (filename: string): string => {
+    // Remove any path components and only keep the basename
+    const baseName = path.basename(filename);
+    // Remove or replace potentially dangerous characters
+    return baseName.replace(/[^a-zA-Z0-9.-]/g, '_');
+};
 
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
@@ -7,7 +16,8 @@ const storage = multer.diskStorage({
     },
     filename: function (req, file, cb) {
         const uniqueSuffix = Date.now();
-        cb(null, uniqueSuffix + '-' + file.originalname);
+        const sanitizedName = sanitizeFilename(file.originalname);
+        cb(null, uniqueSuffix + '-' + sanitizedName);
     }
 });
 

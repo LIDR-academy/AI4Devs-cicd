@@ -75,6 +75,17 @@ const validateCV = (cv: any) => {
     if (typeof cv !== 'object' || !cv.filePath || typeof cv.filePath !== 'string' || !cv.fileType || typeof cv.fileType !== 'string') {
         throw new Error('Invalid CV data');
     }
+    
+    // Security: Validate file path to prevent path traversal attacks
+    if (cv.filePath.includes('..') || cv.filePath.includes('~') || !cv.filePath.startsWith('uploads/')) {
+        throw new Error('Invalid file path');
+    }
+    
+    // Security: Validate file type to only allow specific MIME types
+    const allowedMimeTypes = ['application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+    if (!allowedMimeTypes.includes(cv.fileType)) {
+        throw new Error('Invalid file type');
+    }
 };
 
 export const validateCandidateData = (data: any) => {
